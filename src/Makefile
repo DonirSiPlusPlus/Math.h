@@ -10,11 +10,9 @@ all: s21_math.a cpplint test cppcheck gcov_report
 s21_math.a : s21_math.o
 	ar -cr s21_math.a s21_math.o
 
-s21_math.o: s21_math.c s21_math.h
-	gcc $(CFLAGS) -c s21_math.c
-
 test:
 	gcc s21_math_tests.c s21_math.c -o s21_test -lcheck
+	./s21_test
 
 leaks: test
 	leaks -atExit -- ./s21_test
@@ -30,16 +28,16 @@ gcov_report:
 	lcov -t s21_test -o test.info -c -d .
 	genhtml -o report test.info
 
-cpplint:
-	python3 ../materials/linters/cpplint.py --extensions=c *.c *.h
+clang:
+	clang-format -i *.c *.h
+	clang-format -n *.c *.h
 
-cppcheck:
+check:
 	cppcheck *.c *.h
 
 val :
 	gcc -O0 -g s21_math_tests.c -o vgcheck
 	valgrind ./s21_test --leak-check=full
-
 
 clean:
 	rm -Rf *.o
@@ -49,3 +47,6 @@ clean:
 	rm -Rf s21_test
 	rm -Rf *.info
 	rm -Rf report
+
+s21_math.o: s21_math.c s21_math.h
+	gcc $(CFLAGS) -c s21_math.c
